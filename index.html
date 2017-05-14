@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            border: 1px solid transparent;
+        }
+
+        .box {
+            border: 5px solid olive;
+            width: 500px; 
+            height: 500px;
+            margin: 50px auto;
+        }
+
+        .box > ul {
+            width: 100%;
+            height: 100%;
+            list-style: none;
+        }
+
+        ul > li {
+            float: left;
+            border: 1px solid whitesmoke;
+        }
+
+        .text {
+            position: absolute;
+            top:20px;
+            left: 50%;
+            margin-left: -20px;
+            text-align: center;
+        }
+
+        .fullScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, .7);
+            z-index: 9999;
+        }
+
+        #startGame {
+            font-size: 32px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -69px;
+            margin-top: -21px;
+        }
+
+        .time {
+            position: absolute;
+            top: 100px;
+            left: 50px;
+        }
+
+        .rule {
+            position: absolute;
+            top: 150px;
+            left: 50px;
+        }
+
+        .rule .txt {
+            font-size: 16px;
+            display: none;
+            position: relative;
+            top: 10px;
+            width: 300px;
+            color: yellowgreen;
+        }
+
+        #ruleLink {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .clearfix::before, .clearfix::after {
+            content: '';
+            display: block;
+        }
+
+        .clearfix::after {
+            clear: both;
+        }
+
+        .clearfix {
+            zoom: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="text"></div>
+<div class="box">
+    <ul class="liBox"></ul>
+</div>
+<div class="fullScreen">
+    <a id="startGame" href="javascript:;">开始游戏</a>
+    <div class="rule">
+        <a id="ruleLink" href="javascript:;">游戏规则</a>
+        <div class="txt">
+            点击颜色不同于其他色块的颜色，时间为0时即为游戏结束;
+            <br>
+            <br>
+            一共30关卡
+        </div>
+    </div>
+</div>
+<div class="time"></div>
+
+<script>
+	var box = document.querySelector('.box');
+	var text = document.querySelector('.text');
+	var ul = document.querySelector('.liBox');
+	var txt = document.querySelector('.txt');
+	var timeText = document.querySelector('.time');
+	var index = 2;
+	var opac = 70;
+	var color = setBgColor(1);
+	setLis();
+
+
+	//开始游戏
+	document.querySelector('#startGame').onclick = function () {
+		var time = 30;
+		var timer = null;
+		timeText.innerHTML = '剩余时间：' + time;
+		this.parentNode.style.display = 'none';
+		var that = this;
+		timer = setInterval(function () {
+			time--;
+			timeText.innerHTML = '剩余时间：' + time;
+			if (time === 0) {
+				clearInterval(timer);
+				that.parentNode.style.display = 'block';
+				that.innerHTML = "重新开始";
+			}
+		}, 1000)
+		ul.innerHTML = "";
+		opac = 70;
+		index = 2;
+		setLis();
+		tapChangeColor();
+	}
+
+
+	document.querySelector('#ruleLink').onmouseover = function () {
+		txt.style.display = 'block';
+	}
+	document.querySelector('#ruleLink').onmouseout = function () {
+		txt.style.display = 'none';
+	}
+
+
+	//动态生成li
+	function setLis() {
+		for (var i = 0; i < index * index; i++) {
+			var li = document.createElement('li');
+			li.style.width = (1 / index * 100) + "%";
+			li.style.height = (1 / index * 100) + "%";
+			li.style.backgroundColor = color;
+			ul.appendChild(li);
+		}
+	};
+
+
+	//点击色块改变颜色
+	function tapChangeColor() {
+		var lis = ul.children;
+		var active = Math.floor(Math.random() * index * index);
+		lis[active].style.backgroundColor = color;
+		lis[active].style.opacity = opac / 100;
+
+		for (var i = 0; i < lis.length; i++) {
+			lis[i].index = i;
+			lis[i].onclick = function () {
+				color = setBgColor(1);
+				if (this.index === active && opac <= 100) {
+					if ((opac - 70) % 3 === 0) {
+						index++;
+					}
+					opac++;
+					ul.innerHTML = "";
+					setLis();
+					tapChangeColor();
+				}
+			}
+		}
+		text.innerHTML = '第' + (opac - 69) + '关';
+	}
+
+
+	//随机生成颜色
+	function setBgColor(a) {
+		var r = Math.floor(Math.random() * 256);
+		var g = Math.floor(Math.random() * 256);
+		var b = Math.floor(Math.random() * 256);
+		return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+	}
+</script>
+</body>
+</html>
